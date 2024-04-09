@@ -26,7 +26,7 @@ public class PaymentController {
             @RequestParam(value = "amount") Integer amount,
             @RequestParam(value = "paymentKey") String paymentKey) throws Exception {
 
-        String secretKey = "본인 시크릿 키 기입 콜론이 뒤에 붙어야함:";
+        String secretKey = "test_sk_LlDJaYngrooeEqpdWXRNrezGdRpX:";
 
         Base64.Encoder encoder = Base64.getEncoder();
         byte[] encodedBytes = encoder.encode(secretKey.getBytes("UTF-8"));
@@ -43,11 +43,18 @@ public class PaymentController {
         obj.put("orderId", orderId);
         obj.put("amount", amount);
 
+        if(orderId.startsWith("sample-") && amount != 50000 ){
+            throw new RuntimeException("결제 금액이 오만원이 아닌데?");
+        }
+
         OutputStream outputStream = connection.getOutputStream();
+
         outputStream.write(obj.toString().getBytes("UTF-8"));
 
         int code = connection.getResponseCode();
+
         boolean isSuccess = code == 200 ? true : false;
+
         model.addAttribute("isSuccess", isSuccess);
 
         InputStream responseStream = isSuccess ? connection.getInputStream() : connection.getErrorStream();
